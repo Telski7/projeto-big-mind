@@ -1,0 +1,14 @@
+anthropic>=0.34.0
+python-dotenv>=1.0.0
+SpeechRecognition>=3.10.0
+pyttsx3>=2.90
+pyaudio>=0.2.13
+pychromecast>=14.0.0
+
+# Opcionais para controle de PC (descomente conforme seu SO)
+# pycaw>=20230407 ; sys_platform == "win32"   # controle de volume no Windows
+# pyautogui>=0.9.54                            # screenshot / automação cross-platform
+
+# Opcionais para TVs específicas (descomente se for usar)
+# samsungtvws>=2.7.1     # Samsung Tizen
+# pywebostv>=0.8.9       # LG webOS

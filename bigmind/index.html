@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BigMind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="stars" aria-hidden="true"></div>
+
+<div class="frame">
+
+  <header class="topbar">
+    <div class="wordmark">BigMind</div>
+    <div class="topbar-right">
+      <div class="clock" id="clock">--:--</div>
+      <div class="devices">
+        <button class="device-pill is-online" id="pc-pill" type="button">
+          <span class="dot"></span>PC
+        </button>
+        <button class="device-pill" id="tv-pill" type="button">
+          <span class="dot"></span>TV
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage">
+
+    <section class="voice-core" aria-live="polite">
+      <button class="core-button" id="core-button" type="button" aria-label="Falar com o BigMind">
+        <svg class="core-rings" viewBox="0 0 240 240" width="240" height="240">
+          <circle class="ring ring-3" cx="120" cy="120" r="110"></circle>
+          <circle class="ring ring-2" cx="120" cy="120" r="86"></circle>
+          <circle class="ring ring-1" cx="120" cy="120" r="62"></circle>
+          <circle class="core-dot" cx="120" cy="120" r="8"></circle>
+        </svg>
+      </button>
+      <p class="core-status" id="core-status">Em espera. Toque o núcleo para falar.</p>
+    </section>
+
+    <section class="panels">
+
+      <div class="panel log-panel">
+        <div class="panel-head">
+          <h2>Registro</h2>
+          <span class="panel-note">últimas interações</span>
+        </div>
+        <div class="log" id="log">
+          <div class="log-entry">
+            <span class="log-time">09:12</span>
+            <span class="log-role role-user">você</span>
+            <p>bom dia, o que tenho na agenda hoje?</p>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">09:12</span>
+            <span class="log-role role-assistant">bigmind</span>
+            <p>bom dia. você não me contou nenhum compromisso ainda para hoje — quer que eu anote algum?</p>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">09:13</span>
+            <span class="log-role role-user">você</span>
+            <p>lembre-se que às 15h tenho reunião com o time</p>
+          </div>
+          <div class="log-entry">
+            <span class="log-time">09:13</span>
+            <span class="log-role role-assistant">bigmind</span>
+            <p>anotado. te aviso perto das 15h.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel control-panel">
+        <div class="panel-head">
+          <h2>Comandos rápidos</h2>
+          <span class="panel-note">PC e TV</span>
+        </div>
+
+        <div class="control-group">
+          <span class="control-group-label">Computador</span>
+          <div class="control-row">
+            <button class="control-btn" data-log="Abrindo o navegador.">Navegador</button>
+            <button class="control-btn" data-log="Tela bloqueada.">Bloquear tela</button>
+            <button class="control-btn" data-log="Print salvo.">Print</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-group-label">Televisão</span>
+          <div class="control-row">
+            <button class="control-btn" data-log="Jogando na TV.">Jogar na TV</button>
+            <button class="control-btn" data-log="Pausado.">Pausar</button>
+            <button class="control-btn" data-log="Volume da TV ajustado.">Volume</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-group-label">Memória fixa</span>
+          <ul class="facts-list" id="facts-list">
+            <li>reunião com o time às 15h</li>
+            <li>prefere respostas curtas à noite</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>BigMind v0.1, rodando localmente na sua máquina.</p>
+  </footer>
+
+</div>
+
+<script>
+  // Relógio
+  const clockEl = document.getElementById('clock');
+  function tick() {
+    const now = new Date();
+    const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const day = now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
+    clockEl.textContent = `${time}, ${day}`;
+  }
+  tick();
+  setInterval(tick, 1000 * 15);
+
+  // Estado do núcleo de voz
+  const coreButton = document.getElementById('core-button');
+  const coreStatus = document.getElementById('core-status');
+  const log = document.getElementById('log');
+
+  function timeNow() {
+    return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function addLogEntry(role, text) {
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `
+      <span class="log-time">${timeNow()}</span>
+      <span class="log-role role-${role}">${role === 'user' ? 'você' : 'bigmind'}</span>
+      <p>${text}</p>
+    `;
+    log.appendChild(entry);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  let listening = false;
+  coreButton.addEventListener('click', () => {
+    if (listening) return;
+    listening = true;
+    coreButton.classList.add('is-listening');
+    coreStatus.textContent = 'Ouvindo...';
+
+    setTimeout(() => {
+      coreButton.classList.remove('is-listening');
+      coreButton.classList.add('is-thinking');
+      coreStatus.textContent = 'Pensando...';
+      addLogEntry('user', 'que horas são?');
+
+      setTimeout(() => {
+        coreButton.classList.remove('is-thinking');
+        coreStatus.textContent = 'Em espera. Toque o núcleo para falar.';
+        addLogEntry('assistant', `agora são ${timeNow()}.`);
+        listening = false;
+      }, 1100);
+    }, 1400);
+  });
+
+  // Botões de comando rápido
+  document.querySelectorAll('.control-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const msg = btn.getAttribute('data-log');
+      btn.classList.add('is-pressed');
+      setTimeout(() => btn.classList.remove('is-pressed'), 300);
+      addLogEntry('assistant', msg);
+    });
+  });
+
+  // Pills de dispositivo (alternam conectado/offline, apenas visual)
+  document.querySelectorAll('.device-pill').forEach((pill) => {
+    pill.addEventListener('click', () => {
+      pill.classList.toggle('is-online');
+    });
+  });
+</script>
+
+</body>
+</html>
